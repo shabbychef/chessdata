@@ -9,12 +9,13 @@
 
 suppressMessages(library(docopt))       # we need docopt (>= 0.3) as on CRAN
 
-doc <- "Usage: extract_results.r [-v] [--no_names_please] [--require_elos] INFILE [OUTFILE]
+doc <- "Usage: extract_results.r [-v] [--no_names_please] [--require_elos] [--keep_dates] INFILE [OUTFILE]
 
 Convert pgn summary to a dataframe csv
 
 --no_names_please                Do not include names of Black and White players.
 --require_elos                   Do not include games unless both BlackElo and WhiteElo are non-na.
+--keep_dates                     Keep the Date field.
 -v --verbose                     Be more verbose
 -h --help                        show this help text"
 
@@ -70,11 +71,15 @@ if (opt$no_names_please) {
 		select(Date,White,Black,WhiteElo,BlackElo,WhiteResult)
 }
 
+if (!opt$keep_dates) {
+	fooz %<>%
+		select(-Date)
+}
+
 if (opt$require_elos) {
 	fooz %<>%
 		filter(!is.na(WhiteElo),!is.na(BlackElo))
 }
-
 
 if (is.null(opt$OUTFILE)) {
 	format_csv(fooz) %>%
