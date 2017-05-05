@@ -7,6 +7,8 @@
 # Author: Steven E. Pav
 ######################
 
+default : help
+
 millionbase_2.2.exe :
 	wget --output-document=$@ 'http://www.top-5000.nl/dl/millionbase%202.2.exe?forcedownload'
 
@@ -18,13 +20,27 @@ millionbase-2.22.pgn : millionbase_2.2.exe
 	grep -a -P '\[(Date|White|Black|Result|WhiteElo|BlackElo)' $< | perl -pe 's/^\s*\[|\]//g;' > $@
 
 %_resu.csv : %.subpgn extract_results.r 
-	r $(filter %.r,$^) --no_names_please --require_elos $(filter %.subpgn,$^) $@
+	r $(filter %.r,$^) --no_names_please --require_elos --keep_dates $(filter %.subpgn,$^) $@
 
 .PRECIOUS : %.subpgn
 
 .PHONY : results
 
-results : millionbase-2.22_resu.csv ## turn pgn data into results of Date, Elo and outcome.
+results : millionbase-2.22_resu.csv ## create file of Date, Elo and outcome.
+
+%_summa.csv : %_resu.csv summarizer.r
+	r $(filter %.r,$^) $(filter %_resu.csv,$^) $@
+
+.PHONY : summary
+
+summary : millionbase-2.22_summa.csv ## create file of Year, deltaElo, meanElo and outcome.
+
+%.csv.gz : %.csv
+	gzip -k $<
+
+.PHONY : downstream
+
+downstream : millionbase-2.22_summa.csv.gz  ## create data needed for dowstream analysis.
 
 .PHONY   : help 
 
