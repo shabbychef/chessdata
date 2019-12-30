@@ -8,6 +8,10 @@ research on Elo ratings.
 
 -- Steven E. Pav, shabbychef@gmail.com
 
+*Note* These scripts source their data from the 'top 5000' millionbase
+database, which has disappeared. I would love to host the data, but
+am not sure how to do so.
+
 ## run it 
 
 You will need some R packages for the last part: `readr`, `dplyr`, and
